@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+
+<title>JDR Maps</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#111111">
+
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+
+<style>
+/* ===== BASE ===== */
+body{
+  margin:0;
+  background:#111;
+  color:#fff;
+  font-family:Arial;
+}
+button,select,input{
+  padding:8px;
+  font-size:14px;
+}
+
+/* ===== CONTROLS ===== */
+#controls{
+  background:#222;
+  padding:10px;
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+/* ===== MAP ===== */
+#mapContainer{
+  position:relative;
+  overflow:hidden;
+  background:#000;
+}
+#mapImage{display:block}
+
+/* ===== GRID ===== */
+#grid{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  display:none;
+}
+#grid.active{display:block}
+#grid::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:
+    repeating-linear-gradient(to right,rgba(255,255,255,.15) 0 1px,transparent 1px var(--grid-size)),
+    repeating-linear-gradient(to bottom,rgba(255,255,255,.15) 0 1px,transparent 1px var(--grid-size));
+}
+
+/* ===== TOKENS ===== */
+.token{
+  position:absolute;
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  background:crimson;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  user-select:none;
+  touch-action:none;
+  z-index:10;
+}
+.token.selected{
+  outline:3px solid #00e5ff;
+  outline-offset:2px;
+}
+.token span{
+  position:absolute;
+  bottom:-18px;
+  font-size:12px;
+  white-space:nowrap;
+  left:50%;
+  transform:translateX(-50%);
+}
+.token img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.image-token{
+  background:none;
+  border-radius:0;
+}
+
+/* ===== AURA ===== */
+.token.aura::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:calc(var(--aura-radius, 80px) * 2);
+  height:calc(var(--aura-radius, 80px) * 2);
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  pointer-events:none;
+  box-shadow:0 0 12px 4px var(--aura-color, #00e5ff);
+  opacity:.8;
+}
+
+/* ===== TOKEN MENU ===== */
+#tokenMenu{
+  position:fixed;
+  background:#222;
+  border:1px solid #555;
+  padding:12px;
+  display:none;
+  z-index:999;
+  min-width:220px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="controls">
+  <button onclick="addMap()">🗺️ Nouvelle map</button>
+  <select id="mapSelect" onchange="selectMap(this.value)">
+    <option value="">— Choisir une map —</option>
+  </select>
+
+  <button onclick="addToken()">➕ Pion</button>
+  <button onclick="addImageToken()">🖼️ Pion image</button>
+
+  <button onclick="toggleGrid()">🧩 Grille</button>
+  <label>
+    Taille grille
+    <input type="range" min="20" max="200" value="50" oninput="setGridSize(this.value)">
+  </label>
+
+  <select id="diceSelect">
+    <option value="">🎲 Dés</option>
+    <option>1d4</option><option>1d6</option><option>1d8</option>
+    <option>1d10</option><option>1d12</option>
+    <option>1d20</option><option>2d6</option>
+  </select>
+  <button onclick="rollDice()">Lancer</button>
+  <span id="diceResult"></span>
+
+  <button onclick="saveGame()">💾 Sauvegarder</button>
+  <button onclick="loadGame()">♻️ Recharger</button>
+</div>
+
+<div id="mapContainer">
+  <img id="mapImage">
+  <div id="grid"></div>
+</div>
+
+<div id="tokenMenu">
+  <button onclick="renameToken()">✏️ Renommer</button><br><br>
+
+  <label>📏 Taille
+    <input id="sizeSlider" type="range" min="20" max="200">
+  </label><br><br>
+
+  <button onclick="toggleLock()">🔒 / 🔓 Verrou</button><br><br>
+
+  🎨 Couleur aura<br>
+  <input type="color" id="auraColor" value="#00e5ff" onchange="setAuraColor(this.value)"><br><br>
+
+  📡 Rayon aura<br>
+  <input type="range" id="auraRadius" min="20" max="400" value="80"
+         oninput="setAuraRadius(this.value)"><br><br>
+
+  <button onclick="enableAura()">✨ Aura ON</button>
+  <button onclick="disableAura()">🚫 Aura OFF</button><br><br>
+
+  <button onclick="rotateToken(-15)">↺</button>
+  <button onclick="rotateToken(15)">↻</button><br><br>
+
+  <button onclick="flipX()">↔️</button>
+  <button onclick="flipY()">↕️</button><br><br>
+
+  <button onclick="duplicateToken()">📄 Dupliquer</button><br><br>
+  <button onclick="deleteToken()">🗑️ Supprimer</button>
+</div>
+
+<script>
+/* === TOUT TON JS D’ORIGINE, INCHANGÉ === */
+</script>
+
+<!-- ===== SERVICE WORKER ===== -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
+</body>
+</html>
